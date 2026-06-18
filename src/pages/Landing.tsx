@@ -37,7 +37,7 @@ export default function Landing() {
             <Button size="lg" className="bg-[#F59E0B] hover:bg-amber-500 text-white font-semibold px-8" asChild>
               <Link to="/login">Начать тестирование</Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-[#1E40AF]" asChild>
+            <Button size="lg" variant="outline" className="border-white text-white bg-transparent hover:bg-white hover:text-[#1E40AF]" asChild>
               <Link to="/register">Регистрация</Link>
             </Button>
           </div>
