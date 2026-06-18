@@ -6,7 +6,7 @@ import { mockTests, mockAttempts } from '../../lib/mockData'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
-import { BookOpen, Users, TrendingUp, Plus, Eye } from 'lucide-react'
+import { BookOpen, Users, TrendingUp, Plus, Eye, Pencil } from 'lucide-react'
 
 export default function TeacherDashboard() {
   const user = useAuthStore(s => s.user)
@@ -42,11 +42,18 @@ export default function TeacherDashboard() {
                   </div>
                   <p className="text-sm text-slate-500 mt-0.5">{test.subject?.name} · {test.time_limit} мин · Порог: {test.pass_score}%</p>
                 </div>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to={`/teacher/test/${test.id}/results`} className="gap-1 flex items-center">
-                    <Eye className="h-3.5 w-3.5" /> Результаты
-                  </Link>
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to={`/teacher/test/${test.id}/edit`} className="gap-1 flex items-center">
+                      <Pencil className="h-3.5 w-3.5" /> Редактировать
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to={`/teacher/test/${test.id}/results`} className="gap-1 flex items-center">
+                      <Eye className="h-3.5 w-3.5" /> Результаты
+                    </Link>
+                  </Button>
+                </div>
               </div>
             ))}
           </div>

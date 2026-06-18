@@ -1,3 +1,5 @@
+// @ts-ignore
+import { pdf } from '@react-pdf/renderer'
 import PageLayout from '../../components/layout/PageLayout'
 import { Card, CardContent } from '../../components/ui/card'
 import { Badge } from '../../components/ui/badge'
@@ -5,8 +7,26 @@ import { Button } from '../../components/ui/button'
 import { mockCertificates } from '../../lib/mockData'
 import { formatDate, getGrade } from '../../lib/utils'
 import { Award, Download, QrCode } from 'lucide-react'
+import CertificatePDF from '../../components/certificate/CertificatePDF'
+import { useAuthStore } from '../../store/authStore'
+import type { Certificate } from '../../types'
 
 export default function Certificates() {
+  const user = useAuthStore(s => s.user)
+
+  const handleDownload = async (cert: Certificate) => {
+    const blob = await pdf(
+      // @ts-ignore
+      <CertificatePDF cert={cert} studentName={user?.full_name || 'Студент'} teacherName="Сейткали Г.А." />
+    ).toBlob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `certificate-${cert.certificate_code}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <PageLayout>
       <div className="mb-6">
@@ -44,7 +64,9 @@ export default function Certificates() {
                   </Badge>
                 </div>
                 <p className="text-xs text-slate-400 mb-4">Выдан: {formatDate(cert.issued_at)}</p>
-                <Button className="w-full gap-2" variant="outline"><Download className="h-4 w-4" /> Скачать PDF</Button>
+                <Button className="w-full gap-2" variant="outline" onClick={() => handleDownload(cert)}>
+                  <Download className="h-4 w-4" /> Скачать PDF
+                </Button>
               </CardContent>
             </Card>
           ))}
