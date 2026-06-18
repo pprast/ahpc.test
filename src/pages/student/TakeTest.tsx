@@ -1,11 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button } from '../../components/ui/button'
-import { Card, CardContent } from '../../components/ui/card'
-import { Progress } from '../../components/ui/progress'
 import Timer from '../../components/test/Timer'
 import { mockTests, mockQuestions } from '../../lib/mockData'
-import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function TakeTest() {
   const { id } = useParams()
@@ -21,24 +18,24 @@ export default function TakeTest() {
 
   if (!test || questions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500">Тест не найден</p>
-          <Button className="mt-4 bg-[#1E40AF]" onClick={() => navigate('/student/tests')}>Назад к тестам</Button>
+          <p className="text-[#9CA3AF] mb-4">Тест не найден</p>
+          <button onClick={() => navigate('/student/tests')} className="px-4 py-2 bg-[#C8410A] text-white text-sm rounded hover:bg-[#A33508]">
+            Назад к тестам
+          </button>
         </div>
       </div>
     )
   }
 
   const current = questions[currentIndex]
-  const progress = ((currentIndex + 1) / questions.length) * 100
 
   const toggleAnswer = (answerId: string) => {
     setSelectedAnswers(prev => {
       const existing = prev[current.id] || []
       if (current.type === 'single' || current.type === 'truefalse') return { ...prev, [current.id]: [answerId] }
-      return { ...prev, [current.id]: existing.includes(answerId) ? existing.filter(id => id !== answerId) : [...existing, answerId] }
+      return { ...prev, [current.id]: existing.includes(answerId) ? existing.filter(a => a !== answerId) : [...existing, answerId] }
     })
   }
 
@@ -60,53 +57,98 @@ export default function TakeTest() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-900 truncate">{test.title}</p>
-            <p className="text-xs text-slate-500">Вопрос {currentIndex + 1} из {questions.length}</p>
+    <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
+      {/* Top bar */}
+      <div className="bg-white border-b border-[#DDE1E7] sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="hidden sm:flex items-center gap-1">
+              {questions.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={`h-1.5 transition-all rounded-full ${
+                    i === currentIndex ? 'w-6 bg-[#C8410A]'
+                    : selectedAnswers[questions[i].id]?.length ? 'w-3 bg-[#DDE1E7]'
+                    : 'w-1.5 bg-[#E8EAED]'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-sm text-[#4B5563] truncate">
+              <span className="font-mono font-bold text-[#111827]">{currentIndex + 1}</span>
+              <span className="text-[#9CA3AF]">/{questions.length}</span>
+              <span className="ml-2 hidden sm:inline text-[#9CA3AF]">— {test.title}</span>
+            </p>
           </div>
           <Timer totalSeconds={test.time_limit * 60} onExpire={handleExpire} />
         </div>
-        <Progress value={progress} className="h-1 rounded-none" />
       </div>
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <Card className="border-0 shadow-sm mb-6">
-          <CardContent className="p-8">
-            <div className="flex items-start gap-3 mb-6">
-              <span className="bg-[#1E40AF] text-white text-sm font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 mt-0.5">{currentIndex + 1}</span>
-              <p className="text-lg font-medium text-slate-900 leading-relaxed">{current.text}</p>
-            </div>
-            <div className="space-y-3">
-              {current.answers?.map(answer => {
-                const isSelected = (selectedAnswers[current.id] || []).includes(answer.id)
-                return (
-                  <button key={answer.id} onClick={() => toggleAnswer(answer.id)}
-                    className={`w-full text-left px-4 py-3.5 rounded-lg border-2 transition-all duration-150 text-sm font-medium ${isSelected ? 'border-[#1E40AF] bg-blue-50 text-[#1E40AF]' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700'}`}>
-                    {answer.text}
-                  </button>
-                )
-              })}
-            </div>
-          </CardContent>
-        </Card>
-        <div className="flex items-center justify-between gap-4">
-          <Button variant="outline" onClick={() => setCurrentIndex(i => i - 1)} disabled={currentIndex === 0} className="gap-2">
-            <ChevronLeft className="h-4 w-4" /> Назад
-          </Button>
-          <div className="flex gap-1.5">
-            {questions.map((q, i) => (
-              <button key={i} onClick={() => setCurrentIndex(i)}
-                className={`w-2.5 h-2.5 rounded-full transition-colors ${i === currentIndex ? 'bg-[#1E40AF]' : selectedAnswers[q.id]?.length ? 'bg-blue-200' : 'bg-slate-200'}`} />
-            ))}
+
+      {/* Content - two columns on desktop */}
+      <div className="flex-1 max-w-6xl mx-auto w-full px-5 py-8 grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+        {/* Question */}
+        <div className="lg:col-span-3">
+          <div className="flex items-start gap-3 mb-2">
+            <span className="font-mono text-xs font-bold text-[#9CA3AF] mt-1 flex-shrink-0 uppercase tracking-wider">
+              Вопрос {currentIndex + 1}
+            </span>
           </div>
+          <p className="font-display font-semibold text-[#111827] text-xl leading-snug tracking-tight">
+            {current.text}
+          </p>
+          <p className="text-xs text-[#9CA3AF] mt-3">
+            {current.type === 'single' || current.type === 'truefalse' ? 'Один верный ответ' : 'Несколько верных ответов'}
+            {' · '}{current.points} {current.points === 1 ? 'балл' : 'балла'}
+          </p>
+        </div>
+
+        {/* Answers */}
+        <div className="lg:col-span-2 space-y-2">
+          {current.answers?.map(answer => {
+            const isSelected = (selectedAnswers[current.id] || []).includes(answer.id)
+            return (
+              <button
+                key={answer.id}
+                onClick={() => toggleAnswer(answer.id)}
+                className={`w-full text-left px-4 py-3.5 rounded border-l-[3px] border transition-all duration-150 text-sm ${
+                  isSelected
+                    ? 'border-l-[#C8410A] border-[#C8410A]/20 bg-[#FEF3EE] text-[#C8410A] font-medium'
+                    : 'border-l-[#DDE1E7] border-[#DDE1E7] bg-white text-[#111827] hover:border-l-[#9CA3AF] hover:bg-[#F0F2F5]'
+                }`}
+              >
+                {answer.text}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Bottom nav */}
+      <div className="border-t border-[#DDE1E7] bg-white">
+        <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between gap-4">
+          <button
+            onClick={() => setCurrentIndex(i => i - 1)}
+            disabled={currentIndex === 0}
+            className="flex items-center gap-1.5 px-4 py-2 text-sm text-[#4B5563] border border-[#DDE1E7] rounded bg-white hover:bg-[#F0F2F5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" /> Назад
+          </button>
+
           {currentIndex < questions.length - 1 ? (
-            <Button onClick={() => setCurrentIndex(i => i + 1)} className="gap-2 bg-[#1E40AF] hover:bg-[#1d3a9e]">
-              Вперёд <ChevronRight className="h-4 w-4" />
-            </Button>
+            <button
+              onClick={() => setCurrentIndex(i => i + 1)}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[#111827] text-white rounded hover:bg-[#1F2937] transition-colors"
+            >
+              Далее <ChevronRight className="h-4 w-4" />
+            </button>
           ) : (
-            <Button onClick={handleFinish} className="gap-2 bg-emerald-600 hover:bg-emerald-700">Завершить тест</Button>
+            <button
+              onClick={handleFinish}
+              className="flex items-center gap-1.5 px-5 py-2 text-sm font-medium bg-[#C8410A] text-white rounded hover:bg-[#A33508] transition-colors"
+            >
+              Завершить тест
+            </button>
           )}
         </div>
       </div>

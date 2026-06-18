@@ -1,58 +1,67 @@
 import { useLocation, Link } from 'react-router-dom'
 import PageLayout from '../../components/layout/PageLayout'
-import { Card, CardContent } from '../../components/ui/card'
-import { Badge } from '../../components/ui/badge'
-import { Button } from '../../components/ui/button'
 import { mockAttempts } from '../../lib/mockData'
 import { formatDate, getGrade } from '../../lib/utils'
-import { Award, CheckCircle, XCircle } from 'lucide-react'
+import { Award } from 'lucide-react'
 
 export default function Results() {
   const location = useLocation()
   const latest = location.state as { score: number; testTitle: string; passed: boolean } | null
+
   return (
     <PageLayout>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">История результатов</h1>
-        <p className="text-slate-500 mt-1">Все ваши попытки прохождения тестов</p>
+      <div className="mb-8 pb-6 border-b border-[#DDE1E7]">
+        <p className="text-xs text-[#9CA3AF] uppercase tracking-wider mb-1">Студент</p>
+        <h1 className="font-display font-bold text-[#111827] text-2xl tracking-tight">История результатов</h1>
       </div>
+
       {latest && (
-        <Card className={`border-2 mb-6 ${latest.passed ? 'border-emerald-200 bg-emerald-50' : 'border-red-200 bg-red-50'}`}>
-          <CardContent className="p-6 flex items-center gap-4">
-            {latest.passed ? <CheckCircle className="h-10 w-10 text-emerald-500 flex-shrink-0" /> : <XCircle className="h-10 w-10 text-red-500 flex-shrink-0" />}
+        <div className={`border rounded-lg p-6 mb-8 ${latest.passed ? 'border-[#1A7A4A]/30 bg-[#ECFBF1]' : 'border-[#C8190A]/30 bg-[#FEF2F2]'}`}>
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-slate-900">{latest.testTitle}</p>
-              <p className={`text-2xl font-bold ${latest.passed ? 'text-emerald-600' : 'text-red-600'}`}>{latest.score}% — {getGrade(latest.score)}</p>
-              <p className="text-sm text-slate-500">{latest.passed ? 'Тест пройден успешно!' : 'Тест не пройден. Попробуйте ещё раз.'}</p>
+              <p className="text-sm text-[#4B5563] mb-1">{latest.testTitle}</p>
+              <div className="flex items-baseline gap-3">
+                <span className={`font-mono font-bold text-4xl tracking-tight ${latest.passed ? 'text-[#1A7A4A]' : 'text-[#C8190A]'}`}>
+                  {latest.score}%
+                </span>
+                <span className={`text-sm font-medium ${latest.passed ? 'text-[#1A7A4A]' : 'text-[#C8190A]'}`}>
+                  {getGrade(latest.score)}
+                </span>
+              </div>
+              <p className="text-xs text-[#4B5563] mt-2">
+                {latest.passed ? 'Тест успешно пройден' : 'Тест не пройден — попробуйте ещё раз'}
+              </p>
             </div>
             {latest.passed && (
-              <Button className="ml-auto gap-2 bg-emerald-600 hover:bg-emerald-700" asChild>
-                <Link to="/student/certificates"><Award className="h-4 w-4" /> Сертификат</Link>
-              </Button>
+              <Link to="/student/certificates" className="flex items-center gap-2 px-4 py-2 bg-[#1A7A4A] text-white text-sm font-medium rounded hover:bg-[#156039] transition-colors whitespace-nowrap">
+                <Award className="h-4 w-4" /> Сертификат
+              </Link>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
-      <div className="space-y-4">
+
+      <div className="space-y-2">
         {mockAttempts.map(attempt => (
-          <Card key={attempt.id} className="border-0 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-slate-900">{attempt.test?.title}</h3>
-                  <p className="text-sm text-slate-500 mt-0.5">{attempt.test?.subject?.name}</p>
-                  <p className="text-xs text-slate-400 mt-1">{formatDate(attempt.finished_at || attempt.started_at)} · Попытка #{attempt.attempt_number}</p>
-                </div>
-                <div className="text-right">
-                  <div className={`text-2xl font-bold ${attempt.score >= 75 ? 'text-emerald-600' : attempt.score >= 60 ? 'text-amber-500' : 'text-red-500'}`}>{attempt.score}%</div>
-                  <p className="text-xs text-slate-500">{getGrade(attempt.score)}</p>
-                  <Badge className={`mt-1 ${attempt.passed ? 'bg-green-100 text-green-700 hover:bg-green-100' : 'bg-red-100 text-red-700 hover:bg-red-100'}`}>
-                    {attempt.passed ? 'Сдан' : 'Не сдан'}
-                  </Badge>
-                </div>
+          <div key={attempt.id} className="bg-white border border-[#DDE1E7] rounded-lg px-5 py-4 flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-[#111827] text-sm truncate">{attempt.test?.title}</p>
+              <p className="text-xs text-[#9CA3AF] mt-0.5">
+                {formatDate(attempt.finished_at || attempt.started_at)} · Попытка #{attempt.attempt_number}
+              </p>
+            </div>
+            <div className="flex items-center gap-6 flex-shrink-0">
+              <div className="text-right">
+                <p className={`font-mono font-bold text-2xl leading-none ${
+                  attempt.score >= 90 ? 'text-[#1A7A4A]'
+                  : attempt.score >= 60 ? 'text-[#C8410A]'
+                  : 'text-[#C8190A]'
+                }`}>{attempt.score}%</p>
+                <p className="text-xs text-[#9CA3AF] mt-1">{getGrade(attempt.score)}</p>
               </div>
-            </CardContent>
-          </Card>
+              <div className={`w-2 h-8 rounded-full ${attempt.passed ? 'bg-[#1A7A4A]' : 'bg-[#E8EAED]'}`} />
+            </div>
+          </div>
         ))}
       </div>
     </PageLayout>
