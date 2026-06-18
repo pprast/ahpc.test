@@ -1,147 +1,122 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import { Button } from '../components/ui/button'
+import { Card, CardContent } from '../components/ui/card'
+import { GraduationCap, BookOpen, Users, Shield, CheckCircle, Award, Clock, BarChart3 } from 'lucide-react'
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      {/* Nav */}
-      <nav className="border-b border-[#DDE1E7] bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-[#C8410A] rounded flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="2" y="2" width="5" height="5" fill="white" opacity="0.9"/>
-                <rect x="9" y="2" width="5" height="5" fill="white" opacity="0.6"/>
-                <rect x="2" y="9" width="5" height="5" fill="white" opacity="0.6"/>
-                <rect x="9" y="9" width="5" height="5" fill="white" opacity="0.3"/>
-              </svg>
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-display font-semibold text-[#111827] text-sm tracking-tight">TestCenter</span>
-              <span className="text-[10px] text-[#9CA3AF] tracking-wider uppercase">АВПК</span>
+    <div className="min-h-screen bg-white">
+      <nav className="border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#1E40AF] rounded-lg p-1.5"><GraduationCap className="h-6 w-6 text-white" /></div>
+            <div>
+              <div className="font-bold text-[#1E40AF] text-sm">TestCenter</div>
+              <div className="text-xs text-slate-400">АВПК</div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Link to="/login" className="px-3 py-1.5 text-sm text-[#4B5563] hover:text-[#111827] transition-colors">
-              Войти
-            </Link>
-            <Link to="/register" className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium bg-[#C8410A] text-white rounded hover:bg-[#A33508] transition-colors">
-              Начать <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+          <div className="flex gap-2">
+            <Button variant="ghost" asChild><Link to="/login">Войти</Link></Button>
+            <Button className="bg-[#1E40AF] hover:bg-[#1d3a9e]" asChild><Link to="/register">Начать</Link></Button>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="max-w-6xl mx-auto px-5 pt-20 pb-16">
-        <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 text-xs font-medium text-[#C8410A] bg-[#FEF3EE] px-3 py-1.5 rounded-full mb-8 border border-[#C8410A]/20">
-            <span className="w-1.5 h-1.5 bg-[#C8410A] rounded-full"></span>
-            Актюбинский высший политехнический колледж
+      <section className="bg-gradient-to-br from-[#1E40AF] via-blue-700 to-blue-900 text-white py-24 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 text-sm mb-6 backdrop-blur">
+            <Award className="h-4 w-4 text-[#F59E0B]" /> Актюбинский высший политехнический колледж
           </div>
-
-          <h1 className="font-display font-bold text-[#111827] mb-6" style={{ fontSize: '3.25rem', lineHeight: '1.1', letterSpacing: '-0.03em' }}>
-            Платформа<br />
-            аттестации<br />
-            <span className="text-[#C8410A]">знаний</span>
+          <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight mb-6">
+            Платформа<br/><span className="text-[#F59E0B]">тестирования</span> знаний
           </h1>
-
-          <p className="text-[#4B5563] text-lg leading-relaxed mb-10 max-w-lg">
-            Тесты с таймером, автоматические оценки, сертификаты. Для студентов, преподавателей и администрации колледжа.
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+            Современная система аттестации для студентов и преподавателей. Тесты, результаты, сертификаты — всё в одном месте.
           </p>
-
-          <div className="flex items-center gap-3">
-            <Link to="/login" className="flex items-center gap-2 px-5 py-2.5 bg-[#C8410A] text-white font-medium rounded hover:bg-[#A33508] transition-colors">
-              Войти в систему <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link to="/register" className="px-5 py-2.5 text-[#4B5563] font-medium border border-[#DDE1E7] rounded bg-white hover:bg-[#F0F2F5] transition-colors">
-              Регистрация
-            </Link>
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Button size="lg" className="bg-[#F59E0B] hover:bg-amber-500 text-white font-semibold px-8" asChild>
+              <Link to="/login">Начать тестирование</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-[#1E40AF]" asChild>
+              <Link to="/register">Регистрация</Link>
+            </Button>
           </div>
-        </div>
-
-        {/* Stats strip */}
-        <div className="mt-16 pt-8 border-t border-[#DDE1E7] grid grid-cols-3 gap-0 max-w-lg">
-          {[
-            { value: '500+', label: 'Студентов в системе' },
-            { value: '50+', label: 'Активных тестов' },
-            { value: '1000+', label: 'Сертификатов выдано' },
-          ].map((stat, i) => (
-            <div key={i} className={`${i > 0 ? 'pl-8 border-l border-[#DDE1E7]' : ''} ${i < 2 ? 'pr-8' : ''}`}>
-              <div className="font-mono font-bold text-2xl text-[#111827] tracking-tight">{stat.value}</div>
-              <div className="text-xs text-[#9CA3AF] mt-1">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="border-t border-[#DDE1E7] bg-white">
-        <div className="max-w-6xl mx-auto px-5 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#DDE1E7]">
-            {[
-              {
-                role: 'Студентам',
-                items: [
-                  'Прохождение тестов с обратным таймером',
-                  'История всех попыток и оценок',
-                  'Сертификаты при успешной аттестации',
-                  'Навигация по вопросам',
-                ],
-              },
-              {
-                role: 'Преподавателям',
-                items: [
-                  'Конструктор тестов и вопросов',
-                  'Назначение тестов группам',
-                  'Сводная таблица результатов',
-                  'Настройка порога и попыток',
-                ],
-              },
-              {
-                role: 'Администраторам',
-                items: [
-                  'Управление пользователями и ролями',
-                  'Создание групп и специальностей',
-                  'Аналитика по колледжу',
-                  'Полный доступ к системе',
-                ],
-              },
-            ].map((f) => (
-              <div key={f.role} className="bg-white p-8">
-                <p className="font-display font-semibold text-[#111827] mb-5">{f.role}</p>
-                <ul className="space-y-3">
-                  {f.items.map(item => (
-                    <li key={item} className="flex items-start gap-2.5 text-sm text-[#4B5563]">
-                      <CheckCircle2 className="h-4 w-4 text-[#1A7A4A] mt-0.5 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+          <div className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
+            {[{ value: '500+', label: 'Студентов' }, { value: '50+', label: 'Тестов' }, { value: '1000+', label: 'Сертификатов' }].map(s => (
+              <div key={s.label}>
+                <div className="text-3xl font-bold text-[#F59E0B]">{s.value}</div>
+                <div className="text-sm text-blue-200 mt-1">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-[#111827]">
-        <div className="max-w-6xl mx-auto px-5 py-16 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div>
-            <p className="font-display font-bold text-white text-2xl tracking-tight mb-1">Готовы начать?</p>
-            <p className="text-[#6B7280] text-sm">Вход для студентов, преподавателей и администраторов.</p>
+      <section className="py-20 px-4 bg-slate-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900">Возможности платформы</h2>
+            <p className="text-slate-500 mt-3">Всё необходимое для качественного обучения и оценки знаний</p>
           </div>
-          <Link to="/login" className="flex items-center gap-2 px-6 py-3 bg-[#C8410A] text-white font-medium rounded hover:bg-[#A33508] transition-colors whitespace-nowrap">
-            Войти в TestCenter <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: <BookOpen className="h-7 w-7" />, title: 'Для студентов', color: 'text-blue-600 bg-blue-50', items: ['Прохождение тестов с таймером', 'История результатов', 'Сертификаты об аттестации', 'Удобный интерфейс'] },
+              { icon: <Users className="h-7 w-7" />, title: 'Для преподавателей', color: 'text-amber-600 bg-amber-50', items: ['Создание тестов и вопросов', 'Назначение группам', 'Аналитика результатов', 'Экспорт в CSV'] },
+              { icon: <Shield className="h-7 w-7" />, title: 'Для администраторов', color: 'text-emerald-600 bg-emerald-50', items: ['Управление пользователями', 'Управление группами', 'Сводная статистика', 'Настройка системы'] },
+            ].map(f => (
+              <Card key={f.title} className="border-0 shadow-sm">
+                <CardContent className="p-8">
+                  <div className={`inline-flex p-3 rounded-xl ${f.color} mb-5`}>{f.icon}</div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-4">{f.title}</h3>
+                  <ul className="space-y-2.5">
+                    {f.items.map(item => (
+                      <li key={item} className="flex items-center gap-2.5 text-slate-600">
+                        <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-[#DDE1E7]">
-        <div className="max-w-6xl mx-auto px-5 py-6 flex items-center justify-between">
-          <span className="text-xs text-[#9CA3AF]">© 2026 TestCenter — Актюбинский высший политехнический колледж</span>
-          <span className="text-xs text-[#9CA3AF] font-mono">v1.0.0</span>
+      <section className="py-20 px-4">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-slate-900 mb-12">Как это работает</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            {[
+              { icon: <Users className="h-8 w-8" />, step: '1', title: 'Регистрация', desc: 'Создайте аккаунт студента или войдите по данным колледжа' },
+              { icon: <Clock className="h-8 w-8" />, step: '2', title: 'Пройдите тест', desc: 'Ответьте на вопросы в отведённое время с комфортным интерфейсом' },
+              { icon: <BarChart3 className="h-8 w-8" />, step: '3', title: 'Получите результат', desc: 'Узнайте оценку и скачайте сертификат при успешном прохождении' },
+            ].map(s => (
+              <div key={s.step} className="flex flex-col items-center">
+                <div className="bg-[#1E40AF] text-white rounded-full w-16 h-16 flex items-center justify-center mb-4 text-2xl font-bold">{s.step}</div>
+                <h3 className="font-bold text-slate-900 text-lg mb-2">{s.title}</h3>
+                <p className="text-slate-500 text-sm">{s.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </section>
+
+      <section className="py-16 px-4 bg-[#1E40AF] text-white text-center">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4">Готовы начать?</h2>
+          <p className="text-blue-100 mb-8">Присоединяйтесь к тысячам студентов и преподавателей АВПК</p>
+          <Button size="lg" className="bg-[#F59E0B] hover:bg-amber-500 text-white font-semibold px-10" asChild>
+            <Link to="/register">Зарегистрироваться бесплатно</Link>
+          </Button>
+        </div>
+      </section>
+
+      <footer className="py-8 px-4 border-t border-slate-100 text-center text-sm text-slate-400">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <GraduationCap className="h-4 w-4 text-[#1E40AF]" />
+          <span className="font-medium text-slate-600">Актюбинский высший политехнический колледж</span>
+        </div>
+        <p>© 2026 TestCenter. Платформа тестирования знаний.</p>
       </footer>
     </div>
   )

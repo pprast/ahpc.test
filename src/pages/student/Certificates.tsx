@@ -1,60 +1,52 @@
 import PageLayout from '../../components/layout/PageLayout'
+import { Card, CardContent } from '../../components/ui/card'
+import { Badge } from '../../components/ui/badge'
+import { Button } from '../../components/ui/button'
 import { mockCertificates } from '../../lib/mockData'
 import { formatDate, getGrade } from '../../lib/utils'
-import { Download } from 'lucide-react'
+import { Award, Download, QrCode } from 'lucide-react'
 
 export default function Certificates() {
   return (
     <PageLayout>
-      <div className="mb-8 pb-6 border-b border-[#DDE1E7]">
-        <p className="text-xs text-[#9CA3AF] uppercase tracking-wider mb-1">Студент</p>
-        <h1 className="font-display font-bold text-[#111827] text-2xl tracking-tight">Сертификаты</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-900">Мои сертификаты</h1>
+        <p className="text-slate-500 mt-1">Сертификаты об успешном прохождении аттестации</p>
       </div>
-
       {mockCertificates.length === 0 ? (
-        <div className="text-center py-20 text-[#9CA3AF]">
-          <p className="text-base">Сертификатов пока нет</p>
-          <p className="text-sm mt-1">Успешно пройдите тест, чтобы получить сертификат</p>
+        <div className="text-center py-16 text-slate-400">
+          <Award className="h-16 w-16 mx-auto mb-4 opacity-20" />
+          <p className="text-lg font-medium">Сертификатов пока нет</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {mockCertificates.map(cert => (
-            <div key={cert.id} className="bg-white border border-[#DDE1E7] rounded-lg overflow-hidden">
-              {/* Certificate header */}
-              <div className="bg-[#111827] px-6 py-5">
-                <div className="flex items-start justify-between gap-3">
+            <Card key={cert.id} className="border-0 shadow-sm overflow-hidden">
+              <div className="bg-gradient-to-br from-[#1E40AF] to-blue-700 p-6 text-white">
+                <div className="flex items-center gap-3 mb-3">
+                  <Award className="h-8 w-8 text-[#F59E0B]" />
                   <div>
-                    <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-1">Сертификат</p>
-                    <p className="font-display font-semibold text-white text-base leading-snug">{cert.test?.title}</p>
-                    <p className="text-[#6B7280] text-xs mt-1">{cert.test?.subject?.name}</p>
+                    <p className="font-bold text-lg">Сертификат</p>
+                    <p className="text-blue-200 text-xs">об успешном прохождении аттестации</p>
                   </div>
-                  <span className={`font-mono font-bold text-2xl ${cert.attempt && cert.attempt.score >= 90 ? 'text-[#C8410A]' : 'text-[#9CA3AF]'}`}>
-                    {cert.attempt?.score}%
-                  </span>
                 </div>
+                <h3 className="font-semibold text-base">{cert.test?.title}</h3>
+                <p className="text-blue-200 text-sm mt-1">{cert.test?.subject?.name}</p>
               </div>
-
-              {/* Certificate body */}
-              <div className="px-6 py-4">
+              <CardContent className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-xs text-[#9CA3AF]">Оценка</p>
-                    <p className="text-sm font-medium text-[#111827]">{cert.attempt ? getGrade(cert.attempt.score) : '—'}</p>
+                    <div className={`text-2xl font-bold ${cert.attempt && cert.attempt.score >= 90 ? 'text-emerald-600' : 'text-blue-600'}`}>{cert.attempt?.score}%</div>
+                    <div className="text-sm text-slate-500">{cert.attempt ? getGrade(cert.attempt.score) : ''}</div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-[#9CA3AF]">Выдан</p>
-                    <p className="text-sm text-[#111827]">{formatDate(cert.issued_at)}</p>
-                  </div>
+                  <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 gap-1">
+                    <QrCode className="h-3 w-3" /> {cert.certificate_code}
+                  </Badge>
                 </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-[#DDE1E7]">
-                  <span className="font-mono text-xs text-[#9CA3AF]">{cert.certificate_code}</span>
-                  <button className="flex items-center gap-1.5 text-xs font-medium text-[#C8410A] hover:underline">
-                    <Download className="h-3.5 w-3.5" /> Скачать PDF
-                  </button>
-                </div>
-              </div>
-            </div>
+                <p className="text-xs text-slate-400 mb-4">Выдан: {formatDate(cert.issued_at)}</p>
+                <Button className="w-full gap-2" variant="outline"><Download className="h-4 w-4" /> Скачать PDF</Button>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

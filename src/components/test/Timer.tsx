@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from 'react'
+import { Badge } from '../ui/badge'
 import { Clock } from 'lucide-react'
 
 export default function Timer({ totalSeconds, onExpire }: { totalSeconds: number; onExpire: () => void }) {
   const [remaining, setRemaining] = useState(totalSeconds)
-  const expire = useCallback(onExpire, [])
+  const expire = useCallback(onExpire, [onExpire])
 
   useEffect(() => {
     if (remaining <= 0) { expire(); return }
@@ -16,15 +17,9 @@ export default function Timer({ totalSeconds, onExpire }: { totalSeconds: number
   const urgent = remaining < 60
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-1.5 rounded border ${
-      urgent
-        ? 'border-[#C8190A] bg-[#FEF2F2] text-[#C8190A]'
-        : 'border-[#DDE1E7] bg-white text-[#111827]'
-    }`}>
+    <Badge className={`text-sm px-3 py-1.5 gap-1.5 font-mono ${urgent ? 'bg-red-500 text-white animate-pulse' : 'bg-[#1E40AF] text-white'}`}>
       <Clock className="h-3.5 w-3.5" />
-      <span className={`font-mono text-sm font-bold ${urgent ? 'animate-pulse' : ''}`}>
-        {String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
-      </span>
-    </div>
+      {String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
+    </Badge>
   )
 }

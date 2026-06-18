@@ -1,18 +1,27 @@
+import type { ReactNode } from 'react'
+import { Card, CardContent } from '../ui/card'
+
 interface StatsCardProps {
-  label: string
+  title: string
   value: string | number
-  sub?: string
-  accent?: boolean
+  icon: ReactNode
+  iconBg?: string
+  subtitle?: string
 }
 
-export default function StatsCard({ label, value, sub, accent }: StatsCardProps) {
+export default function StatsCard({ title, value, icon, iconBg = 'bg-blue-50 text-blue-600', subtitle }: StatsCardProps) {
   return (
-    <div className="bg-white border border-[#DDE1E7] rounded-lg p-5">
-      <p className="text-xs font-sans text-[#9CA3AF] uppercase tracking-wider mb-2">{label}</p>
-      <p className={`font-mono text-3xl font-bold tracking-tight leading-none ${accent ? 'text-[#C8410A]' : 'text-[#111827]'}`}>
-        {value}
-      </p>
-      {sub && <p className="text-xs text-[#9CA3AF] mt-1.5">{sub}</p>}
-    </div>
+    <Card className="border-0 shadow-sm">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-slate-500 font-medium">{title}</p>
+            <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
+            {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
+          </div>
+          <div className={`p-3 rounded-xl ${iconBg}`}>{icon}</div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
