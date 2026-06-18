@@ -4,8 +4,19 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/ahpc.test/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testcenter</title>
-    <script type="module" crossorigin src="/ahpc.test/assets/index-SbVGYf0i.js"></script>
+    <title>TestCenter — АВПК</title>
+    <script>
+      (function() {
+        var params = new URLSearchParams(window.location.search);
+        var p = params.get('p');
+        if (p) {
+          var q = params.get('q');
+          var path = '/ahpc.test/' + p + (q ? '?' + q : '') + window.location.hash;
+          window.history.replaceState(null, null, path);
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/ahpc.test/assets/index-Cq40oleC.js"></script>
     <link rel="stylesheet" crossorigin href="/ahpc.test/assets/index-VcqqqK5g.css">
   </head>
   <body>
