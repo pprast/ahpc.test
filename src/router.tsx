@@ -1,4 +1,4 @@
-import { createHashRouter, RouterProvider, Navigate } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -13,7 +13,7 @@ import TeacherTestResults from './pages/teacher/TestResults'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminUsers from './pages/admin/Users'
 
-const router = createHashRouter([
+const router = createBrowserRouter([
   { path: '/', element: <Landing /> },
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
@@ -45,7 +45,7 @@ const router = createHashRouter([
       { path: 'users', element: <AdminUsers /> },
     ],
   },
-])
+], { basename: '/ahpc.test' })
 
 export default function Router() {
   return <RouterProvider router={router} />
