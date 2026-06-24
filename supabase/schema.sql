@@ -94,9 +94,6 @@ create table attempt_answers (
   text_answer text
 );
 
--- Certificate sequence
-create sequence if not exists cert_seq start 1;
-
 -- Certificates
 create table certificates (
   id uuid default uuid_generate_v4() primary key,
@@ -104,11 +101,13 @@ create table certificates (
   test_id uuid references tests(id) on delete cascade,
   attempt_id uuid references attempts(id) on delete cascade,
   issued_at timestamptz default now(),
-  certificate_code text unique default 'AVPK-' || to_char(now(), 'YYYY') || '-' || lpad(nextval('cert_seq')::text, 5, '0')
+  certificate_code text unique not null
 );
 
 -- Row Level Security
 alter table profiles enable row level security;
+alter table groups enable row level security;
+alter table subjects enable row level security;
 alter table tests enable row level security;
 alter table questions enable row level security;
 alter table answers enable row level security;
@@ -117,6 +116,7 @@ alter table certificates enable row level security;
 
 -- Policies: users see their own profile
 create policy "Users can view own profile" on profiles for select using (auth.uid() = id);
+create policy "Users can insert own profile" on profiles for insert with check (auth.uid() = id);
 create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
 
 -- Policies: students see active tests assigned to their group
@@ -136,3 +136,25 @@ create policy "Students create attempts" on attempts for insert
 -- Policies: students see own certificates
 create policy "Students see own certificates" on certificates for select
   using (student_id = auth.uid());
+create policy "Students create certificates" on certificates for insert
+  with check (student_id = auth.uid());
+
+-- Policies: groups and subjects are readable by all authenticated users
+create policy "Authenticated users see groups" on groups for select
+  using (auth.role() = 'authenticated');
+create policy "Authenticated users see subjects" on subjects for select
+  using (auth.role() = 'authenticated');
+
+-- Policies: questions and answers readable by authenticated
+create policy "Authenticated users see questions" on questions for select
+  using (auth.role() = 'authenticated');
+create policy "Authenticated users see answers" on answers for select
+  using (auth.role() = 'authenticated');
+
+-- Policies: admin full access
+create policy "Admins full access profiles" on profiles for all
+  using (exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin'));
+create policy "Admins full access groups" on groups for all
+  using (exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin'));
+create policy "Admins full access subjects" on subjects for all
+  using (exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin'));

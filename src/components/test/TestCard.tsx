@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Card, CardContent, CardFooter } from '../ui/card'
-import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { Clock, Target, BookOpen, ChevronRight } from 'lucide-react'
+import { Clock, Target, RotateCcw, ChevronRight, CheckCircle2, BookOpen } from 'lucide-react'
 import type { Test } from '../../types'
 
 interface TestCardProps {
@@ -14,36 +12,69 @@ interface TestCardProps {
 
 export default function TestCard({ test, attemptCount = 0, lastScore, linkPrefix = '/student' }: TestCardProps) {
   const attemptsLeft = test.attempts_allowed - attemptCount
+  const passed = lastScore !== undefined && lastScore >= test.pass_score
+
   return (
-    <Card className="border-0 shadow-sm hover:shadow-md transition-all duration-200 group">
-      <CardContent className="p-6">
-        <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <Badge className={test.is_active ? 'bg-green-100 text-green-700 hover:bg-green-100' : 'bg-slate-100 text-slate-500'}>
-            {test.is_active ? 'Активный' : 'Неактивный'}
-          </Badge>
-          {lastScore !== undefined && (
-            <Badge className={lastScore >= test.pass_score ? 'bg-blue-100 text-blue-700 hover:bg-blue-100' : 'bg-red-100 text-red-700 hover:bg-red-100'}>
+    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full border border-slate-100 group overflow-hidden">
+      {/* Accent bar */}
+      <div className={`h-1.5 w-full ${test.is_active ? 'bg-gradient-to-r from-[#1E40AF] to-blue-400' : 'bg-slate-200'}`} />
+
+      <div className="flex flex-col flex-1 p-5">
+        {/* Subject + status */}
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 truncate">
+            <BookOpen className="h-3.5 w-3.5 flex-shrink-0" />
+            <span className="truncate">{test.subject?.name || 'Без предмета'}</span>
+          </span>
+          {lastScore !== undefined ? (
+            <span className={`flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${passed ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
               {lastScore}%
-            </Badge>
+            </span>
+          ) : (
+            <span className={`flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${test.is_active ? 'bg-blue-50 text-[#1E40AF]' : 'bg-slate-100 text-slate-400'}`}>
+              {test.is_active ? 'Активный' : 'Неактивный'}
+            </span>
           )}
         </div>
-        <h3 className="font-semibold text-slate-900 text-base leading-snug group-hover:text-[#1E40AF] transition-colors">{test.title}</h3>
-        {test.subject && <p className="text-sm text-slate-500 mt-1">{test.subject.name}</p>}
-        <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
-          <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {test.time_limit} мин</span>
-          <span className="flex items-center gap-1"><Target className="h-3.5 w-3.5" /> Порог: {test.pass_score}%</span>
-          <span className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5" /> Попыток: {attemptsLeft}/{test.attempts_allowed}</span>
+
+        {/* Title */}
+        <h3 className="font-semibold text-slate-900 text-[15px] leading-snug group-hover:text-[#1E40AF] transition-colors line-clamp-2 flex-1 mb-4">
+          {test.title}
+        </h3>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="bg-slate-50 rounded-xl p-2.5 text-center">
+            <Clock className="h-4 w-4 text-slate-400 mx-auto mb-1" />
+            <p className="text-xs font-semibold text-slate-700">{test.time_limit}</p>
+            <p className="text-[10px] text-slate-400">мин</p>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-2.5 text-center">
+            <Target className="h-4 w-4 text-slate-400 mx-auto mb-1" />
+            <p className="text-xs font-semibold text-slate-700">{test.pass_score}%</p>
+            <p className="text-[10px] text-slate-400">порог</p>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-2.5 text-center">
+            <RotateCcw className="h-4 w-4 text-slate-400 mx-auto mb-1" />
+            <p className="text-xs font-semibold text-slate-700">{attemptsLeft}/{test.attempts_allowed}</p>
+            <p className="text-[10px] text-slate-400">попыток</p>
+          </div>
         </div>
-      </CardContent>
-      <CardFooter className="px-6 pb-6 pt-0">
+
+        {/* Button */}
         {attemptsLeft > 0 ? (
-          <Button asChild className="w-full bg-[#1E40AF] hover:bg-[#1d3a9e]">
-            <Link to={`${linkPrefix}/test/${test.id}`}>Начать тест <ChevronRight className="h-4 w-4 ml-1" /></Link>
+          <Button asChild className="w-full bg-[#1E40AF] hover:bg-[#1d3a9e] gap-2 mt-auto">
+            <Link to={`${linkPrefix}/test/${test.id}`}>
+              {passed ? <CheckCircle2 className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              {passed ? 'Пройти снова' : 'Начать тест'}
+            </Link>
           </Button>
         ) : (
-          <Button disabled className="w-full">Попытки исчерпаны</Button>
+          <Button disabled className="w-full mt-auto text-slate-400 bg-slate-100 hover:bg-slate-100 cursor-not-allowed">
+            Попытки исчерпаны
+          </Button>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   )
 }

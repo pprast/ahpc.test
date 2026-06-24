@@ -30,11 +30,11 @@ const adminLinks = [
 ]
 
 export default function Header() {
-  const { user, setUser } = useAuthStore()
+  const { user, signOut } = useAuthStore()
   const navigate = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const handleLogout = () => { setUser(null); navigate('/'); setMobileOpen(false) }
+  const handleLogout = async () => { await signOut(); navigate('/'); setMobileOpen(false) }
 
   const getDashboardPath = () => {
     if (!user) return '/'

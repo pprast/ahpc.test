@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,8 +9,6 @@ import { Label } from '../components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card'
 import { GraduationCap, LogIn } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
-import { mockStudentProfile, mockTeacherProfile, mockAdminProfile } from '../lib/mockData'
-import type { Profile } from '../types'
 
 const schema = z.object({
   email: z.string().email('Введите корректный email'),
@@ -19,15 +18,24 @@ type Form = z.infer<typeof schema>
 
 export default function Login() {
   const navigate = useNavigate()
-  const setUser = useAuthStore(s => s.setUser)
+  const { signIn } = useAuthStore()
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm<Form>({ resolver: zodResolver(schema) })
 
-  const onSubmit = (_data: Form) => { setUser(mockStudentProfile); navigate('/student/dashboard') }
-
-  const quickLogin = (profile: Profile) => {
-    setUser(profile)
-    const paths: Record<string, string> = { student: '/student/dashboard', teacher: '/teacher/dashboard', admin: '/admin/dashboard' }
-    navigate(paths[profile.role])
+  const onSubmit = async (data: Form) => {
+    setError(null)
+    setLoading(true)
+    const { error: signInError } = await signIn(data.email, data.password)
+    setLoading(false)
+    if (signInError) {
+      setError('Неверный email или пароль')
+      return
+    }
+    const user = useAuthStore.getState().user
+    if (user?.role === 'student') navigate('/student/dashboard')
+    else if (user?.role === 'teacher') navigate('/teacher/dashboard')
+    else navigate('/admin/dashboard')
   }
 
   return (
@@ -55,18 +63,16 @@ export default function Login() {
                 <Input type="password" placeholder="••••••••" {...register('password')} />
                 {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
               </div>
-              <Button type="submit" className="w-full bg-[#1E40AF] hover:bg-[#1d3a9e] gap-2">
-                <LogIn className="h-4 w-4" /> Войти
+              {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+              <Button type="submit" disabled={loading} className="w-full bg-[#1E40AF] hover:bg-[#1d3a9e] gap-2">
+                {loading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <LogIn className="h-4 w-4" />
+                )}
+                Войти
               </Button>
             </form>
-            <div className="mt-6">
-              <p className="text-xs text-slate-400 text-center mb-3">Демо-вход (без пароля)</p>
-              <div className="grid grid-cols-3 gap-2">
-                <Button variant="outline" size="sm" onClick={() => quickLogin(mockStudentProfile)} className="text-xs">Студент</Button>
-                <Button variant="outline" size="sm" onClick={() => quickLogin(mockTeacherProfile)} className="text-xs">Преподаватель</Button>
-                <Button variant="outline" size="sm" onClick={() => quickLogin(mockAdminProfile)} className="text-xs">Администратор</Button>
-              </div>
-            </div>
             <p className="text-center text-sm text-slate-500 mt-6">
               Нет аккаунта? <Link to="/register" className="text-[#1E40AF] font-medium hover:underline">Зарегистрироваться</Link>
             </p>

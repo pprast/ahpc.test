@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageLayout from '../../components/layout/PageLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
@@ -8,8 +8,10 @@ import { Label } from '../../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { Textarea } from '../../components/ui/textarea'
 import { Badge } from '../../components/ui/badge'
-import { mockSubjects } from '../../lib/mockData'
+import { db } from '../../lib/db'
+import { useAuthStore } from '../../store/authStore'
 import { Plus, Trash2, CheckCircle } from 'lucide-react'
+import type { Subject } from '../../types'
 
 interface LocalAnswer { localId: string; text: string; is_correct: boolean }
 interface LocalQuestion { localId: string; text: string; type: string; points: number; answers: LocalAnswer[] }
@@ -22,6 +24,12 @@ export default function CreateTest() {
   const [passScore, setPassScore] = useState('70')
   const [attemptsAllowed, setAttemptsAllowed] = useState('3')
   const [questions, setQuestions] = useState<LocalQuestion[]>([])
+  const [subjects, setSubjects] = useState<Subject[]>([])
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    setSubjects(db.getSubjects())
+  }, [])
 
   const addQuestion = () => setQuestions(prev => [...prev, {
     localId: Date.now().toString(), text: '', type: 'single', points: 1,
@@ -53,6 +61,42 @@ export default function CreateTest() {
       } : q
     ))
 
+  const saveTest = () => {
+    const user = useAuthStore.getState().user
+    if (!user || !title || !subjectId) {
+      alert('Заполните название и выберите предмет')
+      return
+    }
+    setSaving(true)
+
+    const test = db.createTest({
+      title,
+      subject_id: subjectId,
+      teacher_id: user.id,
+      time_limit: +timeLimit,
+      pass_score: +passScore,
+      attempts_allowed: +attemptsAllowed,
+      is_active: true,
+      shuffle_questions: false,
+    })
+
+    questions.forEach((q, idx) => {
+      const question = db.createQuestion({
+        test_id: test.id,
+        text: q.text,
+        type: q.type as any,
+        points: +q.points,
+        order_index: idx,
+      })
+      q.answers.forEach(a => {
+        db.createAnswer({ question_id: question.id, text: a.text, is_correct: a.is_correct })
+      })
+    })
+
+    setSaving(false)
+    navigate('/teacher/dashboard')
+  }
+
   return (
     <PageLayout>
       <div className="mb-6">
@@ -69,7 +113,7 @@ export default function CreateTest() {
                 <Label>Предмет</Label>
                 <Select value={subjectId} onValueChange={setSubjectId}>
                   <SelectTrigger><SelectValue placeholder="Выберите предмет" /></SelectTrigger>
-                  <SelectContent>{mockSubjects.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+                  <SelectContent>{subjects.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -77,7 +121,9 @@ export default function CreateTest() {
                 <div className="space-y-1.5"><Label>Порог (%)</Label><Input type="number" value={passScore} onChange={e => setPassScore(e.target.value)} /></div>
               </div>
               <div className="space-y-1.5"><Label>Попыток</Label><Input type="number" value={attemptsAllowed} onChange={e => setAttemptsAllowed(e.target.value)} /></div>
-              <Button onClick={() => { alert('Тест сохранён (демо)'); navigate('/teacher/dashboard') }} className="w-full bg-[#1E40AF] hover:bg-[#1d3a9e]">Сохранить тест</Button>
+              <Button onClick={saveTest} disabled={saving} className="w-full bg-[#1E40AF] hover:bg-[#1d3a9e]">
+                {saving ? 'Сохранение...' : 'Сохранить тест'}
+              </Button>
             </CardContent>
           </Card>
         </div>

@@ -3,13 +3,15 @@ import PageLayout from '../../components/layout/PageLayout'
 import { Card, CardContent } from '../../components/ui/card'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
-import { mockAttempts } from '../../lib/mockData'
+import { useAttempts } from '../../hooks/useAttempts'
 import { formatDate, getGrade } from '../../lib/utils'
 import { Award, CheckCircle, XCircle } from 'lucide-react'
 
 export default function Results() {
   const location = useLocation()
   const latest = location.state as { score: number; testTitle: string; passed: boolean } | null
+  const { attempts, loading } = useAttempts()
+
   return (
     <PageLayout>
       <div className="mb-6">
@@ -33,28 +35,40 @@ export default function Results() {
           </CardContent>
         </Card>
       )}
-      <div className="space-y-4">
-        {mockAttempts.map(attempt => (
-          <Card key={attempt.id} className="border-0 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-slate-900">{attempt.test?.title}</h3>
-                  <p className="text-sm text-slate-500 mt-0.5">{attempt.test?.subject?.name}</p>
-                  <p className="text-xs text-slate-400 mt-1">{formatDate(attempt.finished_at || attempt.started_at)} · Попытка #{attempt.attempt_number}</p>
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map(i => <div key={i} className="animate-pulse bg-slate-200 h-24 rounded-xl" />)}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {attempts.length === 0 && !latest && (
+            <div className="text-center py-16 text-slate-400">
+              <p className="text-lg font-medium">Нет результатов</p>
+              <p className="text-sm mt-1">Пройдите тест, чтобы увидеть результаты здесь</p>
+            </div>
+          )}
+          {attempts.map(attempt => (
+            <Card key={attempt.id} className="border-0 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900">{attempt.test?.title}</h3>
+                    <p className="text-sm text-slate-500 mt-0.5">{attempt.test?.subject?.name}</p>
+                    <p className="text-xs text-slate-400 mt-1">{formatDate(attempt.finished_at || attempt.started_at)} · Попытка #{attempt.attempt_number}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-2xl font-bold ${attempt.score >= 75 ? 'text-emerald-600' : attempt.score >= 60 ? 'text-amber-500' : 'text-red-500'}`}>{attempt.score}%</div>
+                    <p className="text-xs text-slate-500">{getGrade(attempt.score)}</p>
+                    <Badge className={`mt-1 ${attempt.passed ? 'bg-green-100 text-green-700 hover:bg-green-100' : 'bg-red-100 text-red-700 hover:bg-red-100'}`}>
+                      {attempt.passed ? 'Сдан' : 'Не сдан'}
+                    </Badge>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className={`text-2xl font-bold ${attempt.score >= 75 ? 'text-emerald-600' : attempt.score >= 60 ? 'text-amber-500' : 'text-red-500'}`}>{attempt.score}%</div>
-                  <p className="text-xs text-slate-500">{getGrade(attempt.score)}</p>
-                  <Badge className={`mt-1 ${attempt.passed ? 'bg-green-100 text-green-700 hover:bg-green-100' : 'bg-red-100 text-red-700 hover:bg-red-100'}`}>
-                    {attempt.passed ? 'Сдан' : 'Не сдан'}
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </PageLayout>
   )
 }

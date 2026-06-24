@@ -1,23 +1,84 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
 import { Progress } from '../../components/ui/progress'
 import Timer from '../../components/test/Timer'
-import { mockTests, mockQuestions } from '../../lib/mockData'
-import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react'
+import { db } from '../../lib/db'
+import { useAuthStore } from '../../store/authStore'
+import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import type { Test, Question } from '../../types'
 
 export default function TakeTest() {
-  const { id } = useParams()
+  const { id: testId } = useParams()
   const navigate = useNavigate()
-  const test = mockTests.find(t => t.id === id)
-  const questions = mockQuestions.filter(q => q.test_id === id)
+  const [test, setTest] = useState<Test | null>(null)
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [loading, setLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string[]>>({})
+  const [startedAt] = useState(new Date())
+
+  useEffect(() => {
+    if (!testId) return
+    setTest(db.getTestById(testId))
+    setQuestions(db.getQuestionsByTest(testId))
+    setLoading(false)
+  }, [testId])
+
+  const saveAttempt = useCallback((score: number, passed: boolean) => {
+    const user = useAuthStore.getState().user
+    if (!user || !testId) return
+
+    const attemptNumber = db.countAttempts(testId, user.id) + 1
+    const attempt = db.createAttempt({
+      test_id: testId,
+      student_id: user.id,
+      started_at: startedAt.toISOString(),
+      finished_at: new Date().toISOString(),
+      score,
+      passed,
+      attempt_number: attemptNumber,
+    })
+
+    if (passed) {
+      const code = `AVPK-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 99999)).padStart(5, '0')}`
+      db.createCertificate({
+        student_id: user.id,
+        test_id: testId,
+        attempt_id: attempt.id,
+        issued_at: new Date().toISOString(),
+        certificate_code: code,
+      })
+    }
+
+    navigate('/student/results', { state: { score, testTitle: test?.title, passed } })
+  }, [test, testId, startedAt, navigate])
+
+  const calcScore = useCallback(() => {
+    let correct = 0, total = 0
+    questions.forEach(q => {
+      if (!q.answers) return
+      total += q.points
+      const correctIds = q.answers.filter(a => a.is_correct).map(a => a.id).sort()
+      const selected = (selectedAnswers[q.id] || []).sort()
+      if (JSON.stringify(correctIds) === JSON.stringify(selected)) correct += q.points
+    })
+    return total > 0 ? Math.round((correct / total) * 100) : 0
+  }, [questions, selectedAnswers])
 
   const handleExpire = useCallback(() => {
-    navigate('/student/results', { state: { score: 0, testTitle: test?.title, passed: false } })
-  }, [navigate, test])
+    const score = calcScore()
+    saveAttempt(score, score >= (test?.pass_score || 70))
+  }, [calcScore, saveAttempt, test])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#1E40AF] border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   if (!test || questions.length === 0) {
     return (
@@ -42,21 +103,9 @@ export default function TakeTest() {
     })
   }
 
-  const calcScore = () => {
-    let correct = 0, total = 0
-    questions.forEach(q => {
-      if (!q.answers) return
-      total += q.points
-      const correctIds = q.answers.filter(a => a.is_correct).map(a => a.id).sort()
-      const selected = (selectedAnswers[q.id] || []).sort()
-      if (JSON.stringify(correctIds) === JSON.stringify(selected)) correct += q.points
-    })
-    return total > 0 ? Math.round((correct / total) * 100) : 0
-  }
-
   const handleFinish = () => {
     const score = calcScore()
-    navigate('/student/results', { state: { score, testTitle: test.title, passed: score >= test.pass_score } })
+    saveAttempt(score, score >= test.pass_score)
   }
 
   return (
